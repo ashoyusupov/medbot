@@ -1,0 +1,22 @@
+{
+	channel: {
+		port: 3003,
+		url: 'https://4705120a.ngrok.io',
+		token: '610826676:AAGUs9oXVL8K0pcv12FhNIHb_6t3MPlGZ0U'
+	},
+	ustabor: {
+		port: 3003,
+		url: 'https://7b673127.ngrok.io',
+		token: '694387967:AAFh5KdX8zfmIazc_D8UAocFOZfn_ZNKOa8'
+	},
+	tezbozor: {
+		port: 3049,
+		url: 'https://63e0069f.ngrok.io',
+		token: '734040998:AAEOCkPjUu2C73dbal80smty8Hyjml7ll-k'
+	},
+	tezispol: {
+		port: 3050,
+		url: 'https://tezbozor.uz/ispolnitel',
+		token: '735987878:AAGLZEdAo4Yh3nrRvVgU9csb49IYI-xogvc'
+	}
+}
