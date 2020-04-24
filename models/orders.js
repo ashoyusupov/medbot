@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
 		tgid: DataTypes.STRING,
 		metadata: DataTypes.TEXT,
 		phone_number: DataTypes.STRING,
+		fio_vrach: DataTypes.STRING,
 		ostatus: DataTypes.STRING
 	})
 

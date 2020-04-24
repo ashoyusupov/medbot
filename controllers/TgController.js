@@ -66,19 +66,26 @@ module.exports = {
 	},
 	async newOrder (tgid, meta) {
 		try {
-			const result = Orders.update(
-				{ ostatus: 'closed' },
-				{ where: { ostatus: 'open', tgid: tgid } }
-			).then( async () => {
+			const res = await Users.findAll({
+				raw: true,
+				limit: 1,
+				where: {
+					user_id: tgid
+				},
+			}).then( async (users) => {
+				console.log('users1', users)
+				const user = users[0]
 				const metajson = JSON.stringify(meta)
-				await Orders.create({
+				const result = await Orders.create({
 					tgid: tgid,
 					metadata: metajson,
-					phone_number: meta.tovarmobil,
-					ostatus: 'open'
+					phone_number: user.phone_number,
+					fio_vrach: user.fio,
+					ostatus: 'NOT CONFIRMED'
 				})
+				return result
 			})
-			return result
+			return res
 		} catch (error) {
 			console.log(
 				'An error has occured while trying to fetch the zakazs'

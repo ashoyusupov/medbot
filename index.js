@@ -69,6 +69,16 @@ const settFields = {
 		'smile': '🏙️',
 		'inputMess': '<b>Выберите Ваш Город:</b>\n👇'
 	},
+	'instruction': {
+		'langRU': 'Как это работает?',
+		'smile': '📜',
+		'inputMess': '<b>Скоро</b>'
+	},
+	'feedback': {
+		'langRU': 'Оставить отзыв',
+		'smile': '✍️',
+		'inputMess': '<b>Введите ваш отзыв:</b>\n👇'
+	},
 }
 
 const zakaztips = Object.keys(formFields)
@@ -104,26 +114,8 @@ const array_mainmenu = [
 const array_mainmenu_approved = [
 	[
 		{
-			text: '📜 Как это работает?',
-			callback_data: 'instruction'
-		}
-	],
-	[
-		{
 			text: '🛒 Отправить клиента',
 			callback_data: 'zakaz'
-		}
-	],
-	[
-		{
-			text: '📝 Регистрация',
-			callback_data: 'registration'
-		}
-	],
-	[
-		{
-			text: '✍️ Оставить отзыв',
-			callback_data: 'feedback'
 		}
 	],
 	[
@@ -323,7 +315,7 @@ bot.on('message', msg =>{
 					bot.sendMessage(msg.chat.id, welcomeMessage, {
 						parse_mode : 'HTML',
 						reply_markup: {
-							inline_keyboard: array_mainmenu_approved,
+							inline_keyboard: buttonGen(settFields, settTips, 'setting'),
 							remove_keyboard: true
 						}
 					})
@@ -359,7 +351,11 @@ bot.on('callback_query', async query => {
 	case 'sozdatzakaz':
 		checkZakaz(chat.id, query.id, sessTg).then( restext => {
 			if (restext.check) {
-				TgController.newOrder(chat.id, sessTg[chat.id]['zakazData']).then(() => {
+				console.log('newOrder', sessTg[chat.id]['zakazData'])
+				TgController.newOrder(chat.id, sessTg[chat.id]['zakazData']).then((res) => {
+					bot.sendMessage(70061654, '✅ Новый запрос #'+res.dataValues.order_id+': '+sessTg[chat.id]['zakazData'].tovarimya+'\n от '+res.dataValues.fio_vrach)
+					bot.sendMessage(153022142, '✅ Новый запрос #'+res.dataValues.order_id+': '+sessTg[chat.id]['zakazData'].tovarimya+'\n от '+res.dataValues.fio_vrach)
+					// bot.sendMessage(239764523, '✅ Новый запрос #'+res)
 					bot.sendMessage(chat.id, welcomeMessage, {
 						parse_mode : 'HTML',
 						reply_markup: {
@@ -552,7 +548,7 @@ bot.on('callback_query', async query => {
 					[
 						{
 							text: '◀ Назад',
-							callback_data: 'main'
+							callback_data: 'settings'
 						}
 					]
 				],
@@ -569,7 +565,7 @@ bot.on('callback_query', async query => {
 					[
 						{
 							text: '◀ Назад',
-							callback_data: 'main'
+							callback_data: 'settings'
 						}
 					]
 				],
@@ -588,16 +584,44 @@ bot.on('text', msg =>{
 	for (let index in zakaztips) {
 		if(sessTg[msg.chat.id].zakazStep == zakaztips[index]){
 			sessTg[msg.chat.id]['zakazData'][zakaztips[index]] = msg.text
-	
-			zakazMessage(msg.chat.id, sessTg).then( text => {
-				bot.sendMessage(msg.chat.id, text, {
-					parse_mode : 'HTML',
-					reply_markup: {
-						inline_keyboard: zakazMenu,
-						remove_keyboard: true
-					}
+			
+			if (zakaztips.length==1) {				
+
+				TgController.newOrder(msg.chat.id, { tovarimya: msg.text } ).then((res) => {
+					console.log('res3',)
+					//bot.sendMessage(239764523, 'Новый запрос: ')
+					bot.sendMessage(70061654, '✅ Новый запрос #'+res.dataValues.order_id+': '+msg.text+'\n от '+res.dataValues.fio_vrach)
+					bot.sendMessage(153022142, '✅ Новый запрос #'+res.dataValues.order_id+': '+msg.text+'\n от '+res.dataValues.fio_vrach)
+					bot.sendMessage(msg.chat.id, 'Ваш запрос принят ✅', {
+						parse_mode : 'HTML',
+						reply_markup: {
+							inline_keyboard: [
+								[
+									{
+										text: '◀ Назад',
+										callback_data: 'main'
+									}
+								]
+							],
+							remove_keyboard: true
+						}
+					}).then(() => {
+						sessTg[msg.chat.id]['zakazStep'] = {}
+						sessTg[msg.chat.id]['zakazData'] = {}
+					})
 				})
-			})
+
+			} else {
+				zakazMessage(msg.chat.id, sessTg).then( text => {
+					bot.sendMessage(msg.chat.id, text, {
+						parse_mode : 'HTML',
+						reply_markup: {
+							inline_keyboard: zakazMenu,
+							remove_keyboard: true
+						}
+					})
+				})	
+			}			
 		}
 	}
 	console.log(sessTg)
